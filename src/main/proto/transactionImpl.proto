@@ -1,0 +1,125 @@
+syntax = "proto3";
+
+package org.cwv.client.sdk.model;
+
+message TransactionInfoImpl {
+	string hash = 1;
+	TransactionBodyImpl body = 2;
+	string signature = 3;
+	TransactionStatusImpl status = 4;
+	TransactionNodeImpl node = 5;
+}
+
+message TransactionBodyImpl {
+	int32 nonce = 1;
+	string address = 2;
+	repeated TransactionOutputImpl outputs = 3;
+	string fee = 4;
+	TransactionDataImpl data = 5;
+	string exdata = 6;
+	int64 timestamp = 7;
+}
+
+message TransactionOutputImpl {
+	string address = 1;
+	string amount = 2;
+	string token = 3;
+	string tokenAmount = 4;
+	string symbol = 5;
+	repeated string cryptoToken = 6;
+}
+
+message TransactionNodeImpl {
+	string nid = 1;
+	string address = 2;
+}
+
+message TransactionStatusImpl {
+	string status = 1;
+	string result = 2;
+	string hash = 3;
+	int64 height = 4;
+}
+
+message TransactionDataImpl {
+	DataTypeImpl type = 1;
+	UnionAccountDataImpl unionAccountData = 10;
+	UnionAccountTransferDataImpl unionAccountTransferData = 11;
+	UnionAccountConfirmDataImpl unionAccountConfirmData = 12;
+	PublicCryptoTokenDataImpl cryptoTokenData = 20;
+	OwnerTokenDataImpl ownerTokenData = 30;
+	UserTokenDataImpl userTokenData = 31;
+	PublicContractDataImpl publicContractData = 40;
+	CallContractDataImpl callContractData = 41;
+	
+	enum DataTypeImpl {
+		NONE = 0;
+	    PUBLICCRYPTOTOKEN = 1;
+	    OWNERTOKEN = 2;
+	    USERTOKEN = 3;
+	    PUBLICCONTRACT = 4;
+	    CALLCONTRACT = 5;
+	    CREATEUNIONACCOUNT = 6;
+	    PUBLICUNIONACCOUNT = 7;
+	    UNIONACCOUNTTRANSFER = 8;
+	    UNIONACCOUNTCONFIRM = 9;
+	}
+	message PublicCryptoTokenDataImpl {
+		int64 total = 1;
+		string symbol = 2;
+		repeated string name = 3;
+		repeated string code = 4;
+		repeated string prop = 5;
+	}
+	message OwnerTokenDataImpl {
+		string token = 1;
+		string amount = 2;
+		OwnerTokenOpCodeImpl opCode = 3;
+		enum OwnerTokenOpCodeImpl {
+			PUBLIC = 0;
+			BURN = 1;
+			MINT = 2;
+		}
+	}
+	message UserTokenDataImpl {
+		string token = 1;
+		string address = 2;
+		string amount = 3;
+		UserTokenOpCodeImpl opCode = 4;
+		enum UserTokenOpCodeImpl {
+			FREEZE = 0;
+			UNFREEZE = 1;
+			LOCK = 2;
+			UNLOCK = 3;
+		}
+	}
+	message PublicContractDataImpl {
+		string data = 1;
+		string code = 2;
+		string amount = 3;
+	}
+	message CallContractDataImpl {
+		string data = 1;
+		string contract = 2;
+		string amount = 3;
+	}
+	message UnionAccountDataImpl {
+		string max = 1;
+		string acceptMax = 2;
+		int32 acceptLimit = 3;
+		repeated string address = 4;
+	}
+	message UnionAccountTransferDataImpl {
+		string fromSubAccount = 1;
+	}
+	message UnionAccountConfirmDataImpl {
+		string hash = 1;
+		string fromSubAccount = 2;
+	}
+}
+
+message TxResult {
+	int32 retCode = 1;
+	string retMsg = 2;
+	TransactionInfoImpl transaction = 3;
+}

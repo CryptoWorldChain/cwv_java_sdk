@@ -1,0 +1,175 @@
+buildscript {
+	repositories {
+		mavenCentral()
+		jcenter()
+		maven {
+			url "https://plugins.gradle.org/m2/"
+		}
+		maven {
+			url "http://git:25566/nexus/content/repositories/brewchain/"
+		}
+	}
+	dependencies {
+		classpath "onight.osgi:zpp-gradle_1.8:3.4.0"
+		classpath "gradle.plugin.com.google.protobuf:protobuf-gradle-plugin:0.8.10"
+	}
+}
+
+if("${platform}"=="osgi") {
+
+	apply plugin: 'zippo'
+
+	group 'org.cwv.client.sdk'
+	version "1.0.0_${platform}"
+
+	sourceCompatibility = 1.8
+
+	repositories {
+		mavenCentral()
+		maven{
+			url "http://cwvi.club:8081/nexus/content/repositories/brewchain/"
+		}
+	}
+
+	dependencies {
+		testCompile group: 'junit', name: 'junit', version: '4.12'
+
+		annotationProcessor 'org.projectlombok:lombok:1.18.8'
+		compileOnly 'org.projectlombok:lombok:1.18.8'
+		includeInJar "com.madgag.spongycastle:core:1.58.0.0"
+		includeInJar "com.madgag.spongycastle:prov:1.58.0.0"
+		compile "org.slf4j:slf4j-api:1.7.25"
+		includeInJar "com.google.code.gson:gson:2.8.5"
+		compile "com.google.protobuf:protobuf-java:3.6.1"
+		includeInJar "com.alibaba:fastjson:1.2.51"
+		includeInJar "com.squareup.okhttp3:okhttp:3.14.2"
+		// "com.google.code.gson:gson:2.8.5"
+//		includeInJar 'com.google.protobuf:protobuf-java-util:3.6.1'
+
+
+		runtime "ch.qos.logback:logback-core:1.2.3"
+		runtime "ch.qos.logback:logback-classic:1.2.3"
+
+	}
+
+	tasks.withType(JavaCompile) {
+		options.encoding = "UTF-8"
+	}
+
+	protobuf {
+		generatedFilesBaseDir = "$projectDir/src/"
+		protoc {
+			// Download from repositories
+			artifact = 'com.google.protobuf:protoc:3.6.1'
+		}
+	}
+
+	sourceSets {
+		main {
+			resources {
+				srcDir '$projectDir/src/main/resources'
+			}
+			proto {
+				srcDir '$projectDir/src/main/proto'
+			}
+			java {
+				srcDir '$projectDir/src/main/java'
+			}
+		}
+	}
+
+	test.enabled = false
+
+	jar {
+		manifest{
+			attributes( 'Import-Ignore':'ch.qos.logback,org.json,org.bouncycastle,com.aliyun.oss,org.apache.commons.fileupload,org.apache.poi,com.aliyuncs,com.aliyuncs.exceptions,org.apache.commons,org.codehaus.plexus.util,org.cwv.client.sdk.contract,org.cwv.client.sdk.model,com.alibaba.fastjson,org.spongycastle.util.encoders,org.spongycastle,org.spongycastle.asn1.x9,okhttp3,com.develop.mnemonic,com.google.gson')
+		}
+	}
+
+}else{
+	apply plugin: 'java'
+	apply plugin: 'maven'
+	apply plugin: "com.google.protobuf"
+	apply plugin: 'maven-publish'
+
+	group 'org.cwv.client.sdk'
+	version "${buildversion}"
+
+	sourceCompatibility = 1.8
+
+	repositories {
+	    mavenCentral()
+	    maven{
+	        url "http://git:25566/nexus/content/repositories/brewchain/"
+	    }
+	}
+
+	dependencies {
+	    testCompile group: 'junit', name: 'junit', version: '4.12'
+		testCompile 'org.projectlombok:lombok:1.18.8'
+
+//		annotationProcessor 'org.projectlombok:lombok:1.18.8'
+	    compileOnly 'org.projectlombok:lombok:1.18.8'
+	    compile "com.madgag.spongycastle:core:1.58.0.0"
+	    compile "com.madgag.spongycastle:prov:1.58.0.0"
+	    compile "org.slf4j:slf4j-api:1.7.25"
+	    compile "com.google.code.gson:gson:2.8.5"
+	    compile "com.google.protobuf:protobuf-java:3.6.1"
+	    compile "com.alibaba:fastjson:1.2.51"
+	    compile "com.squareup.okhttp3:okhttp:3.14.2"
+	    compile "com.google.code.gson:gson:2.8.5"
+//		compile 'com.google.protobuf:protobuf-java-util:3.6.1'
+
+
+		runtime "ch.qos.logback:logback-core:1.2.3"
+	    runtime "ch.qos.logback:logback-classic:1.2.3"
+
+	}
+
+	tasks.withType(JavaCompile) {
+	    options.encoding = "UTF-8"
+	}
+
+	protobuf {
+	    generatedFilesBaseDir = "$projectDir/src/"
+	    protoc {
+	        // Download from repositories
+	        artifact = 'com.google.protobuf:protoc:3.6.1'
+	    }
+	}
+
+	sourceSets {
+	    main {
+	        proto {
+	            srcDir '$projectDir/src/main/proto'
+	        }
+	        java {
+	            srcDir '$projectDir/src/main/java'
+	        }
+	    }
+	}
+
+	test.enabled = false
+
+	publishing {
+	    publications {
+	        maven(MavenPublication) {
+	            groupId group
+	            artifactId 'cwv4j'
+	            version version
+	            from components.java
+	        }
+	    }
+	    repositories {
+	        maven {
+	            //指定要上传的maven私服仓库
+	            url = "http://git:25566/nexus/content/repositories/brewchain/"
+	            //认证用户和密码
+	            credentials {
+	                username 'admin'
+	                password '66Dk7yFB0CT21LzC'
+	            }
+	        }
+	    }
+	}
+}

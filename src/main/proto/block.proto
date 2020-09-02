@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+import "transaction.proto";
+package org.cwv.client.sdk.model;
+
+message BlockInfo {
+	BlockHeader header = 1;
+	BlockBody body = 2;
+	BlockMiner miner = 3;
+	int32 version = 50;
+}
+
+message BlockHeader {
+	bytes hash = 1;
+	bytes parentHash = 2;
+	int64 height = 3;
+	bytes stateRoot = 4;
+	bytes receiptRoot = 5;
+	int64 timestamp = 6;
+	bytes extraData = 7;
+	repeated bytes txHashs = 8;
+}
+
+message BlockBody {
+	repeated TransactionInfo txs = 1;
+}
+
+message BlockMiner {
+	bytes address = 1;
+	bytes reward = 2;
+	string nid = 3;
+	string term = 4;
+	string bits = 5;
+}

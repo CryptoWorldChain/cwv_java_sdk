@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package org.cwv.client.sdk.model;
+
+message AppealRecord{
+    int32 status = 1;//申诉状态
+    Appeal appeal = 2;//申诉/申辩内容
+    AppealJudgement appealJudgement = 3;//申诉处理结果
+}
+
+//申诉
+message Appeal{
+    string title = 1;//标题
+    string content = 2;//内容
+    repeated string picUrls = 3;//存证
+    repeated string signs = 5;//校验hash
+    string target = 6;//申诉人
+    string submitName = 7;//提交人
+    string appealType = 8;//申诉类型
+}
+
+
+//申诉裁决
+message AppealJudgement{
+    
+    string commissionerName = 1;//申诉专员名称
+    AppealType type = 2;//申诉类型，
+    DutySide dutySide = 3;//责任方
+    
+    string detail = 4;//事件过程详情
+    string evidence = 5;//凭证
+    string judgement = 6;//判定结果
+
+    ForceOpType forceOperate = 7;//强执类型
+    
+    enum AppealType{ 
+        NORMAL = 0;//正常申诉
+        ANIMUS = 1;//恶意申诉
+    }
+    
+    enum DutySide{
+        BROKER = 0;//经销商
+        MERCHANT = 1;//商户
+    }
+    
+    enum ForceOpType{
+        BUYERCANCLE = 0;//强制买方取消
+        SELLERRELEASE = 1;//强制卖方放行
+    }
+    
+}
+
+message OpInfo{
+    string opName = 1;//操作人姓名或地址
+    string content = 2;//操作原因或内容
+    int32 type = 3;//操作类型
+}

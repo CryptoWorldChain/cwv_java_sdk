@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+package org.cwv.client.sdk.model;
+
+message UserInfo {
+	string alias = 1;//”别名”,
+	string companyName =2;//”企业名称”,
+	string phone = 3;//”18510081008”,
+	string qq = 4;// “8735739”
+	string area = 5;//区域
+	string email = 6;
+	int64 createTime = 7;// “464643364”; //时间戳
+}
+
+message PayInfo{
+	int32 id = 1;//支付id
+	PayType payType = 2;//支付方式
+	Open isOpen = 3;//是否开启
+	WechatPayInfo wechatPayInfo = 4;//微信支付
+	AliPayInfo AliPayInfo = 5;//支付宝支付
+	BankInfo BankInfo = 6;//银行卡支付
+	USDTPayInfo USDTPayInfo = 7;//usdt支付
+//	string maxAmount = 8;//最大收款额度
+//	string maxCount = 9;//最大收款次数
+}
+
+message UserReceiptInfo{//商户用户发卖单填写的收款方式
+	PayType payType = 1;//支付方式
+	WechatPayInfo wechatPayInfo = 2;//微信支付
+	AliPayInfo AliPayInfo = 3;//支付宝支付
+	BankInfo BankInfo = 4;//银行卡支付
+	USDTPayInfo USDTPayInfo = 5;//usdt支付
+	string qrCodeUrl = 6;//支付二维码url
+	string sign = 7;//支付图片签名
+}
+
+message PayAmountInfo{
+	int32 payId = 1;//支付方式id
+	string amount = 2;//支付金额
+	string qrCodeUrl = 3;//支付二维码url
+	string sign = 6;//支付图片签名
+	string maxAmount = 7;//最大收款额度
+	string maxCount = 8;//最大收款次数
+	int32 urlType = 9;//payUrl类型
+}
+
+message PayRecord{
+	PayType PayType = 1;//支付类型
+	USDTPayRecord uSDTPayRecord = 2;//usdt支付记录
+}
+
+//支付方式
+enum PayType{
+	WECHAT = 0;
+	ALIPAY = 1;
+	BANKPAY = 2;
+	USDTPAY = 3;
+}
+
+enum Open{
+	close = 0;
+	open = 1;
+}
+
+message WechatPayInfo{
+	string wechat = 1;// “微信号，手机号“,
+}
+
+message AliPayInfo{
+	string alipay = 1;//”18510081008”,
+	string alipayName = 2;//”张三”，
+}
+
+message BankInfo{
+	string bankAccount = 1;//”银行账户”,
+	string bankAccountName = 2;//”张三”,
+	string bankName = 3;//”建设银行”,
+	string bankBranchName = 4;//”开户行支行”
+	string maxAmount = 5;//最大收款额度
+	string maxCount = 6;//最大收款次数
+	string payUrl = 7;//收款url
+	int32 urlType = 8;//payUrl类型
+}
+
+message USDTPayInfo{
+	string addr = 1;//usdt地址
+}
+
+
+
+//USDT支付记录凭证
+message USDTPayRecord{
+	
+	string name = 1;//收款人姓名
+	string usdtAddr = 2;//USDT钱包地址
+	string txHash = 3;//USDT交易hash
+	
+}
+

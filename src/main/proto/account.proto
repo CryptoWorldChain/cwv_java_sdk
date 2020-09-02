@@ -1,0 +1,117 @@
+syntax = "proto3";
+
+package org.cwv.client.sdk.model;
+
+message AccountInfo {
+	bytes address = 1;
+	AccountValue value = 2;
+	
+}
+
+message AccountValue {
+	int32 nonce = 1;
+	bytes balance = 2;
+	bytes max = 3;
+	bytes acceptMax = 4;
+	int32 acceptLimit = 5;
+	repeated bytes address = 6;
+	repeated AccountTokenValue tokens = 7;
+	repeated AccountCryptoValue cryptos = 8;
+	bytes storage = 9;
+	bytes codeHash = 10;
+	bytes code = 11;
+	bytes data = 12;
+	int64 accumulatedTimestamp = 13;
+	bytes accumulated = 14;
+}
+
+message AccountTokenValue {
+	bytes token = 1;
+	bytes balance = 2;
+	bytes locked = 3;
+	bytes freeze = 4;
+}
+
+message AccountCryptoValue {
+	bytes symbol = 1;
+	int32 count = 2;
+	bytes cryptos = 3;
+}
+
+message AccountCryptoSummary {
+	repeated bytes hash = 1;
+}
+
+message AccountCryptoToken {
+	bytes hash = 1; // Token的hash
+	int64 timestamp = 2; // Token创建时间
+	int64 index = 3; // 该Token发行时的索引
+	int64 total = 4; // 该Token的发行总数量
+	string code = 5; // Token的编号
+	string name = 6; // Token的名称
+	bytes owner = 7; // 所有人的账户地址
+	int32 nonce = 8; // 交易次数
+	int64 ownertime = 9; // 所有人获取时间
+	repeated AccountCryptoTokenProp props = 10;
+}
+
+message AccountCryptoTokenProp {
+	string key = 1;
+	string value = 2;
+}
+
+message CryptoTokenOriginValue {
+	int64 total = 1;
+	bytes symbol = 2;
+	bytes owner = 3;
+	int64 timestamp = 4;
+	int64 current = 5;
+
+	repeated CryptoTokenOriginTransactionValue originTx = 6;
+}
+
+message CryptoTokenOriginTransactionValue {
+	bytes txHash = 1;
+	int64 timestamp = 2;
+	int32 startIndex = 3;
+	int32 endIndex = 4;
+	repeated string name = 5;
+	repeated string code = 6;
+	repeated string prop = 7;
+}
+
+message TokenValue {
+	bytes token = 1;
+	bytes address = 2;
+	int64 timestamp = 3;
+	bytes total = 4;
+	repeated TokenValueHistory history = 5;
+}
+
+message TokenValueHistory {
+	int32 opCode = 1;
+	int64 timestamp = 2;
+	bytes total = 3;
+	bytes hash = 4;
+}
+
+message AccountContract {
+	repeated AccountContractValue value = 1;
+}
+
+message AccountContractValue {
+	bytes contractHash = 1;
+	bytes address = 2;
+	int64 timestamp = 3;
+}
+
+message UnionAccountStorage {
+	int32 acceptLimit = 1;
+	repeated bytes confirmHash = 2;
+	repeated bytes confirmBy = 3;
+}
+
+message TokenAccountMapping {
+    bytes hash = 1;
+    AccountCryptoToken tokenInfo = 2;
+}

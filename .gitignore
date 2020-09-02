@@ -1,0 +1,15 @@
+# Created by .ignore support plugin (hsz.mobi)
+/.idea/
+*.iml
+/target/
+/clib/
+/.gradle/
+/build/
+/bin/
+/testfile/
+/logs/
+/out/
+$projectDir
+gradlew.bat
+gradle/wrapper/gradle-wrapper.jar
+gradle/wrapper/gradle-wrapper.properties
