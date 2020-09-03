@@ -393,38 +393,6 @@ public final class HiChain {
     }
 
     
-    /**
-     * 单对单token转账
-     * @param fromAddr  付款人
-     * @param fromPriKey  付款人私钥
-     * @param exData  额外信息，暂时没用
-     * @param toAddr  收款人地址
-     * @param tokenType  token类型，“AAA”
-     * @param amount  金额
-     * @return  交易hash
-     */
-    @Deprecated
-    public static String transferTo(String fromAddr,String fromPriKey,String exData,
-                                    String toAddr,String tokenType,String amount,ChainCallBack cbs,ICrypto... iCryptos){
-//        int nonce = getNonce(fromAddr);
-        //构造交易参数
-        SendTransaction.Builder st = SendTransaction.newBuilder();
-        st.setAddress(fromAddr);
-        st.setPrivateKey(fromPriKey);
-        st.setNonce(-1);
-        st.setExdata(exData);
-        st.setTimestamp(System.currentTimeMillis());
-
-        SendTransactionOutput.Builder sto = SendTransactionOutput.newBuilder();
-        sto.setAddress(toAddr);
-        sto.setAmount("0");
-        sto.setToken(tokenType);
-        sto.setTokenAmount(AccountUtil.multy18(amount));
-        st.addOutputs(sto);
-
-        //发交易请求
-        return doTransaction(st.build(),iCryptos[0],cbs);
-    }
 
     /**
      * 普通转账，token转账
@@ -482,97 +450,10 @@ public final class HiChain {
      * @param fromAddr 发起人地址
      * @param fromPriKey 发起人私钥
      * @param exData 附加信息
-     * @param toAddr 收款人地址
-     * @param tokenType token名称
-     * @param amount 转账金额
-     * @param iCryptos 签名工具类
-     * @return
-     */
-    @Deprecated
-    public static String transferTo(String fromAddr,String fromPriKey,String exData,
-                                    String toAddr,String tokenType,String amount,ICrypto... iCryptos){
-        final String[] result = {"{\"code\":-1,\"msg\":\"未知异常\",\"result\":\"\"}"};
-        CountDownLatch cdl = new CountDownLatch(1);
-        ChainCallBack<String> cbs = new ChainCallBack<String>() {
-            @Override
-            public void call(String body) {
-                TxResult tr = new Gson().fromJson(body,TxResult.class);
-                if(tr.getRetCode() == 1){
-                    //交易提交成功
-//                            txNotifier.sendHash(tr.getHash());//通知调用方
-                    log.info("转账交易，from:{},to:{},amount:{},hash:{}",fromAddr,toAddr,amount,tr.getHash());
-                    //添加交易任务追踪
-                    TxTracker.add(tr.getHash(), new TxCallback() {
-                        @Override
-                        public void call(String txhash, String body) {
-                            TxContent txContent = new Gson().fromJson(body,TxContent.class);
-                            if(txContent.getRetCode() == 1){
-                                if(txContent.getTransaction().getStatus() != null){
-                                    if("D".equals(txContent.getTransaction().getStatus().getStatus())){
-                                        log.error("转账成功，from:{},to:{},amount:{},hash{},result:{}",fromAddr,toAddr,amount,txhash,body);
-                                        result[0] = "{\"code\":1,\"msg\":\"转账成功\",\"result\":\"转账成功\"}";
-                                        cdl.countDown();
-                                    }else{
-                                        log.error("转账交易失败，from:{},to:{},amount:{},hash{},result:{}",fromAddr,toAddr,amount,txhash,body);
-                                        result[0] = "{\"code\":-1,\"msg\":\"转账交易失败\",\"result\":\"\"}";
-                                        cdl.countDown();
-                                    }
-                                }else{
-                                    log.error("转账交易未执行，from:{},to:{},amount:{},hash{},result:{}",fromAddr,toAddr,amount,txhash,body);
-                                    result[0] = "{\"code\":-1,\"msg\":\"转账交易未执行\",\"result\":\"\"}";
-                                    cdl.countDown();
-                                }
-                            }else{
-                                log.error("转账交易失败，from:{},to:{},amount:{},hash{},result:{}",fromAddr,toAddr,amount,txhash,body);
-                                result[0] = "{\"code\":-1,\"msg\":\"转账交易失败\",\"result\":\"\"}";
-                                cdl.countDown();
-                            }
-                        }
-                        @Override
-                        public void exceptionCall(String txhash, String message, String body) {
-                            log.error("转账交易结果查询异常，from:{},to:{},amount:{},hash{},result:{}",fromAddr,toAddr,amount,txhash,body);
-                            result[0] = "{\"code\":-1,\"msg\":\"转账交易结果查询异常\",\"result\":\"\"}";
-                            cdl.countDown();
-                        }
-                    });
-                }else{
-                    log.error("转账交易异常，from:{},to:{},amount:{},result:{}",fromAddr,toAddr,amount,body);
-                    result[0] = "{\"code\":-1,\"msg\":\"转账交易异常\",\"result\":\"\"}";
-                    cdl.countDown();
-                }
-            }
-
-            @Override
-            public void error(String body, Exception e) {
-                log.error("转账失败，from:{},to:{},amount:{},result:{}",fromAddr,toAddr,amount,body);
-                result[0] = "{\"code\":-1,\"msg\":\"转账失败\",\"result\":\""+e.getMessage()+"\"}";
-                cdl.countDown();
-            }
-        };
-        if(iCryptos == null || iCryptos.length == 0){
-            iCryptos = new ICrypto[]{LocalCrypto.getInstance()};
-        }
-        transferTo(fromAddr,fromPriKey,exData,
-                toAddr,tokenType,amount,cbs,iCryptos);
-        //工作线程等待执行结果
-        try {
-            cdl.await(30, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            log.error("交易结果获取线程超时或被终止",e);
-        }
-        return result[0];
-    }
-
-    /**
-     * 转账
-     * @param fromAddr 发起人地址
-     * @param fromPriKey 发起人私钥
-     * @param exData 附加信息
-     * @param iCryptos 签名工具类
      * @return
      */
     public static String transferTo(String fromAddr,String fromPriKey,String exData,
-                                    List<TransferInfo> outs,ICrypto... iCryptos){
+                                    List<TransferInfo> outs){
         final String[] result = {"{\"code\":-1,\"msg\":\"未知异常\",\"result\":\"\"}"};
         CountDownLatch cdl = new CountDownLatch(1);
         ChainCallBack<String> cbs = new ChainCallBack<String>() {
@@ -631,9 +512,6 @@ public final class HiChain {
                 cdl.countDown();
             }
         };
-        if(iCryptos == null || iCryptos.length == 0){
-            iCryptos = new ICrypto[]{LocalCrypto.getInstance()};
-        }
         transferTo(fromAddr,fromPriKey,exData,
                 outs,cbs);
         //工作线程等待执行结果
@@ -850,9 +728,7 @@ public final class HiChain {
     public static Pattern p4= Pattern.compile("(?<=\"coinName\":\"USDT\",\"buy\":\"[0-9.]{2,4}\",\"sell\":\")[0-9\\.]+");
 
     public static String getTokenEncodeAddr(String meth2) {
-        String template = "0000000000000000000000000000000000000000";
-        String code = new String(Hex.encode(meth2.getBytes()))+"20";
-        return template.substring(0,template.length()-code.length())+code;
+        return ContractUtil.getTokenEncodeAddr(meth2);
     }
 
 

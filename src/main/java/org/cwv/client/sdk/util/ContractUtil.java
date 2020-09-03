@@ -34,7 +34,7 @@ public class ContractUtil {
      * uint256[]  ---------->BigInteger[]
      * @return
      */
-    public String getFunctionBinCode(String abi, String functionName, Object...args) {
+    public static String getFunctionBinCode(String abi, String functionName, Object... args) {
         Function function = null;
         try {
             List<Function> list = ContractJSONParser.parseFunctions(abi).stream().filter((Function f) -> f.getName().equals(functionName)).collect(Collectors.toList());
@@ -123,6 +123,12 @@ public class ContractUtil {
     public static String getFunctionParamsCode(Function f,Object... args){
         Tuple tuple = new Tuple(args);
         return new String(Hex.encode(f.getParamTypes().encode(tuple).array()));
+    }
+
+    public static String getTokenEncodeAddr(String token) {
+        String template = "0000000000000000000000000000000000000000";
+        String code = new String(Hex.encode(token.getBytes()))+"20";
+        return template.substring(0,template.length()-code.length())+code;
     }
 
     public static void main(String[] args) {
