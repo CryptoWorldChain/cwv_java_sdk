@@ -60,7 +60,8 @@ public class MnemonicUtils {
   
   private static void validateMnemonic(String mnemonic) {
     if (mnemonic == null || mnemonic.trim().isEmpty())
-      throw new IllegalArgumentException("Mnemonic is required to generate a seed"); 
+      throw new IllegalArgumentException("Mnemonic is required to generate a seed");
+
   }
   
   private static boolean[] nextElevenBits(boolean[] bits, int i) {

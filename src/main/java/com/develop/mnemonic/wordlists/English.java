@@ -1,8 +1,10 @@
 package com.develop.mnemonic.wordlists;
 
+import lombok.Getter;
+
 public enum English implements WordList {
   INSTANCE;
-  
+  @Getter
   private static final String[] words;
   
   public String getWord(int index) {

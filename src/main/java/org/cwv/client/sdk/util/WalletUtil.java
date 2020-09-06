@@ -2,9 +2,14 @@ package org.cwv.client.sdk.util;
 
 import com.develop.mnemonic.KeyPairUtils;
 import com.develop.mnemonic.MnemonicUtils;
+import com.develop.mnemonic.wordlists.English;
+import com.develop.mnemonic.wordlists.WordList;
 import org.brewchain.core.crypto.cwv.keystore.KeyStoreFile;
 import org.brewchain.core.crypto.cwv.keystore.KeyStoreHelper;
 import org.brewchain.core.crypto.model.KeyPairs;
+
+import java.util.Arrays;
+import java.util.List;
 
 
 public final class WalletUtil {
@@ -53,6 +58,22 @@ public final class WalletUtil {
         return words;
     }
 
+    public static void valiadteMnemonic(String mnemonic){
+        if(mnemonic == null || mnemonic.isEmpty()) {
+            throw new IllegalArgumentException("words is null");
+        }
+        List<String> words = Arrays.asList(mnemonic.split(" "));
+        if(words.size()!=12) {
+            throw new IllegalArgumentException("Mnemonic words size should be 12 ,current size is :"+words.size());
+        }
+        String wordsTotal = Arrays.toString(English.getWords());
+        for(String s : words) {
+            if(wordsTotal.indexOf(s) ==-1) {
+                throw new IllegalArgumentException("Mnemonic repository cannot find the word :"+s);
+            }
+        }
+    }
+
     /**
      * 助记词生成keystore文件内容
      */
@@ -81,6 +102,7 @@ public final class WalletUtil {
      * 从助记词生成公私钥
      */
     public static KeyPairs getKeyPair(String mnemonic){
+        valiadteMnemonic(mnemonic);
         byte[] bb = KeyPairUtils.generatePrivateKey(mnemonic, KeyPairUtils.CoinTypes.CWV);
         KeyPairs kp = CryptoUtil.privatekeyToAccountKey(bb);
         return kp;

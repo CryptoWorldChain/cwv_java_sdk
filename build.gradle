@@ -89,14 +89,15 @@ if("${platform}"=="osgi") {
 }else{
 	apply plugin: 'java'
 	apply plugin: 'maven'
+	apply plugin: 'signing'
+
 	apply plugin: "com.google.protobuf"
-	apply plugin: 'maven-publish'
+	group 'io.github.cryptoworldchain'
+	version "${version}-SNAPSHOT"
 
-	group 'org.cwv.client.sdk'
-	version "${buildversion}"
-
-	sourceCompatibility = 1.8
-
+	signing {
+		sign configurations.archives
+	}
 	repositories {
 	    mavenCentral()
 	    maven{
@@ -126,10 +127,6 @@ if("${platform}"=="osgi") {
 
 	}
 
-	tasks.withType(JavaCompile) {
-	    options.encoding = "UTF-8"
-	}
-
 	protobuf {
 	    generatedFilesBaseDir = "$projectDir/src/"
 	    protoc {
@@ -138,38 +135,83 @@ if("${platform}"=="osgi") {
 	    }
 	}
 
-	sourceSets {
-	    main {
-	        proto {
-	            srcDir '$projectDir/src/main/proto'
-	        }
-	        java {
-	            srcDir '$projectDir/src/main/java'
-	        }
-	    }
-	}
 
 	test.enabled = false
 
-	publishing {
-	    publications {
-	        maven(MavenPublication) {
-	            groupId group
-	            artifactId 'cwv4j'
-	            version version
-	            from components.java
-	        }
-	    }
-	    repositories {
-	        maven {
-	            //指定要上传的maven私服仓库
-	            url = "http://git:25566/nexus/content/repositories/brewchain/"
-	            //认证用户和密码
-	            credentials {
-	                username 'admin'
-	                password '66Dk7yFB0CT21LzC'
-	            }
-	        }
-	    }
+	// 最主要的是这里
+	uploadArchives {
+		repositories {
+			mavenDeployer {
+				beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+				repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+					authentication(userName: ossrhUsername, password: ossrhPassword)
+				}
+
+				snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+					authentication(userName: ossrhUsername, password: ossrhPassword)
+				}
+//				snapshotRepository(url:"http://47.240.121.134:25566/nexus/content/repositories/snapshots/"){
+//					authentication(userName: obr_usr, password: obr_pwd)
+//				}
+//				repository(url:"http://47.240.121.134:25566/nexus/content/repositories/brewchain/"){
+//					authentication(userName: obr_usr, password: obr_pwd)
+//				}
+
+
+				pom.project {
+					name 'cwv java sdk'
+					packaging 'jar'
+					// optionally artifactId can be defined here
+					description 'Java sdk for Dapps interact with cwv blockchain node'
+					url 'https://github.com/CryptoWorldChain/cwv_java_sdk'
+
+					scm {
+						connection 'scm:git:git://github.com/CryptoWorldChain/cwv_java_sdk.git'
+						developerConnection 'scm:git:ssh://github.com/CryptoWorldChain/cwv_java_sdk.git'
+						url 'http://github.com/CryptoWorldChain/cwv_java_sdk/tree/master'
+					}
+
+					licenses {
+						license {
+							name 'The Apache License, Version 2.0'
+							url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+						}
+					}
+
+					developers {
+						developer {
+							id 'Stepheniens'
+							name 'Stepheniens'
+							email 'Stepheniens@protonmail.com'
+						}
+					}
+				}
+			}
+		}
+	}
+	task javadocJar(type: Jar) {
+		classifier = 'javadoc'
+		from javadoc
+	}
+
+	task sourcesJar(type: Jar) {
+		classifier = 'sources'
+		from sourceSets.main.allSource
+	}
+
+	sourceSets {
+		main {
+			proto {
+				srcDir '$projectDir/src/main/proto'
+			}
+			java {
+				srcDir '$projectDir/src/main/java'
+			}
+		}
+	}
+
+	tasks.withType(JavaCompile) {
+		options.encoding = "UTF-8"
 	}
 }
