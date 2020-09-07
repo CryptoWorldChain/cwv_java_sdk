@@ -6,14 +6,14 @@ Typically your application should depend on release versions of jsdk, Add the re
 #### Maven
 ```  java
 <dependency>
-  <groupId>io.github.cwv</groupId>
-  <artifactId>jsdk</artifactId>
+  <groupId>io.github.cryptoworldchain</groupId>
+  <artifactId>cwvj</artifactId>
   <version>1.0.1</version>
 </dependency>
 ```
 #### Gradle
 ```  java
-compile ('io.github.cwv:jsdk:1.0.1')
+compile ('io.github.cryptoworldchain:cwvj:1.0.1')
 ```
 ## Config
 ```  java
